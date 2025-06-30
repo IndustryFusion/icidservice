@@ -29,7 +29,7 @@ export class CertificateController {
   })  
   async generateCompanyCertificate(@Body() data: CreateCompanyCertificateDto) {
     try {
-      return await this.certificateService.generateCompanyCertificate(data.company_ifric_id, new Date(data.expiry));
+      return await this.certificateService.generateCompanyCertificate_new(data.company_ifric_id, new Date(data.expiry));
     } catch(err) {
       throw err;
     }
@@ -93,18 +93,18 @@ export class CertificateController {
           description: 'Unique identifier for the company',
           example: 'IFRIC12345'
         },
-        certificate_data: { 
+        fileId: { 
           type: 'string', 
-          description: 'Certificate data to be verified',
-          example: 'base64encodedcertificatestring'
+          description: 'File Id of hedera to be verified',
+          example: '0.01.20222'
         }
       },
-      required: ['company_ifric_id', 'certificate_data']
+      required: ['company_ifric_id', 'fileId']
     }
   })  
-  async verifyCertificate(@Body() data: {company_ifric_id: string, certificate_data: string}) {
+  async verifyCertificate(@Body() data: {company_ifric_id: string, fileId: string}) {
     try {
-      return await this.certificateService.verifyCertificate(data.certificate_data);
+      return await this.certificateService.verifyCertificate_new(data.fileId);
     } catch(err) {
       throw err;
     }
