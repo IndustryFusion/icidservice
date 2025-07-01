@@ -47,13 +47,14 @@ export class CertificateController {
       }
     },
   })  
-  async generateBatchAssetCertificate(@Body() data: {assetIds: string[], expiry: Date}) {
+  async generateBatchAssetCertificate(@Body() data: {assetIds: Record<string, any>[], expiry: Date, holderDid: string, location: string, privateKey: string, subAccountId: string}) {
     try {
-      return await this.certificateService.generateBatchAssetCertificate(data.assetIds, new Date(data.expiry));
+      return await this.certificateService.generateBatchAssetCertificate_new(data.assetIds, data.holderDid, data.location, data.privateKey, data.subAccountId);
     } catch(err) {
       throw err;
     }
   }
+
 
   @Post('create-asset-certificate')
   @ApiBody({
@@ -77,7 +78,7 @@ export class CertificateController {
   })  
   async generateAssetCertificate(@Body() data: CreateAssetCertificateDto) {
     try {
-      return await this.certificateService.generateAssetCertificate(data.asset_ifric_id, new Date(data.expiry));
+      return await this.certificateService.generateAssetCertificate_new(data.asset_ifric_id, data.holderDid, data.location, data.status, data.privateKey, data.subAccountId);
     } catch(err) {
       throw err;
     }
@@ -110,6 +111,8 @@ export class CertificateController {
     }
   }
 
+  
+  // change to hedera VC verify call
   @Post('verify-asset-certificate')
   @ApiBody({
     schema: {
@@ -120,23 +123,19 @@ export class CertificateController {
           description: 'Unique identifier for the asset',
           example: 'Asset12345'
         },
-        certificate_data: { 
-          type: 'string', 
-          description: 'Certificate data to be verified',
-          example: 'base64encodedcertificatestring'
-        }
       },
       required: ['asset_ifric_id', 'certificate_data']
     }
   })  
-  async verifyAssetCertificate(@Body() data: {asset_ifric_id: string, certificate_data: string}) {
+  async verifyAssetCertificate(@Body() data: {asset_ifric_id: string}) {
     try {
-      return await this.certificateService.verifyCertificate(data.certificate_data);
+      return await this.certificateService.verifyAssetCertificate(data.asset_ifric_id);
     } catch(err) {
       throw err;
     }
   }
 
+  // change to hedera VC verify call batch
   @Post('verify-all-asset-certificate')
   @ApiBody({
     schema: {
@@ -147,7 +146,7 @@ export class CertificateController {
       },
     }
   })  
-  async verifyAllAssetCertificate(@Body() data: {asset_ifric_id: string, certificate_data: string}[]) {
+  async verifyAllAssetCertificate(@Body() data: {asset_ifric_id: string}[]) {
     try {
       return await this.certificateService.verifyAllAssetCertificate(data);
     } catch(err) {
