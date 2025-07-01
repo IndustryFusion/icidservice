@@ -154,7 +154,7 @@ export class CertificateService {
 
   async verifyCertificate_new(fileId: string) {
     try {
-      const response = await axios.get(this.hbarUrl + "/did/" + fileId + "/status");
+      const response = await axios.get(this.hbarUrl + "/did" + "/status/" + fileId);
       console.log('Response:', response.data);
       return response.data;
     } catch (err) {
