@@ -22,7 +22,7 @@ fetch_secrets() {
 
   echo "Fetching secrets from $vault_path..."
 
-  secrets_json=$(curl -s --header "X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$vault_path")
+  secrets_json=$(curl -k -s --header "X-Vault-Token: $VAULT_TOKEN" "$VAULT_ADDR/v1/$vault_path")
 
 
   echo "$secrets_json" | jq -r '.data.data | to_entries | map("\(.key)=\(.value)") | .[]' > "$env_file"

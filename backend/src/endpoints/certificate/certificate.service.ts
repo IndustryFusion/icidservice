@@ -1,26 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { generatePrivateKey, createCSR, generateClientCertificate, verifyCertificate } from '../../utils/certificate';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import axios from 'axios';
 
 @Injectable()
 export class CertificateService {
-  constructor() {}
+  constructor() { }
+  private readonly hbarUrl = process.env.HBAR_URL;
+  private readonly assetVcTopicId = process.env.ASSET_VC_TOPIC_ID;
 
-  async generateCompanyCertificate(company_ifric_id: string, expiry: Date) {
+  async generateCompanyCertificate_new(company_ifric_id: string, expiry: Date) {
     try {
-      const { privateKey, publicKey } = generatePrivateKey();
+      const payload = {
+        companyUrn: company_ifric_id
+      };
+      const response = await axios.post(this.hbarUrl + "/account/create-subaccount", payload);
+      console.log('Response:', response.data);
+      return response.data;
 
-      // Create CSR embedding UID (company_ifric_id) and expiry
-      const csr = createCSR(privateKey, company_ifric_id, expiry);
-
-      // Generate client certificate using Root CA
-      const clientCert = generateClientCertificate(csr, expiry);
-
-      return clientCert;
-    } catch(err) {
+    } catch (err) {
       if (err instanceof HttpException) {
         throw err;
-      } else if(err.response) {
+      } else if (err.response) {
         throw new HttpException(err.response.data.message, err.response.status);
       } else {
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -28,21 +28,69 @@ export class CertificateService {
     }
   }
 
-  async generateAssetCertificate(asset_ifric_id: string, expiry: Date) {
+  // async generateCompanyCertificate(company_ifric_id: string, expiry: Date) {
+  //   try {
+  //     const { privateKey, publicKey } = generatePrivateKey();
+
+  //     // Create CSR embedding UID (company_ifric_id) and expiry
+  //     const csr = createCSR(privateKey, company_ifric_id, expiry);
+
+  //     // Generate client certificate using Root CA
+  //     const clientCert = generateClientCertificate(csr, expiry);
+
+  //     return clientCert;
+  //   } catch (err) {
+  //     if (err instanceof HttpException) {
+  //       throw err;
+  //     } else if (err.response) {
+  //       throw new HttpException(err.response.data.message, err.response.status);
+  //     } else {
+  //       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+  //     }
+  //   }
+  // }
+
+
+  // async generateAssetCertificate(asset_ifric_id: string, expiry: Date) {
+  //   try {
+  //     const { privateKey, publicKey } = generatePrivateKey();
+
+  //     // Create CSR embedding UID (asset_ifric_id) and expiry
+  //     const csr = createCSR(privateKey, asset_ifric_id, expiry);
+
+  //     // Generate client certificate using Root CA
+  //     const clientCert = generateClientCertificate(csr, expiry);
+
+  //     return clientCert;
+  //   } catch (err) {
+  //     if (err instanceof HttpException) {
+  //       throw err;
+  //     } else if (err.response) {
+  //       throw new HttpException(err.response.data.message, err.response.status);
+  //     } else {
+  //       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+  //     }
+  //   }
+  // }
+
+
+  async generateAssetCertificate_new(asset_ifric_id: string, holderDid: string, location: string, status: string, privateKey: string, subAccountId: string) {
     try {
-      const { privateKey, publicKey } = generatePrivateKey();
-    
-      // Create CSR embedding UID (asset_ifric_id) and expiry
-      const csr = createCSR(privateKey, asset_ifric_id, expiry);
-      
-      // Generate client certificate using Root CA
-      const clientCert = generateClientCertificate(csr, expiry);
-      
-      return clientCert;
-    } catch(err) {
+      const payload = {
+        holderDid: holderDid,
+        twinUrn: asset_ifric_id,
+        location: location,
+        status: status,
+        privateKey: privateKey,
+        subAccountId: subAccountId
+      };
+      const response = await axios.post(this.hbarUrl + "/vc/issue", payload);
+      console.log('Response:', response.data);
+      return response.data;
+    } catch (err) {
       if (err instanceof HttpException) {
         throw err;
-      } else if(err.response) {
+      } else if (err.response) {
         throw new HttpException(err.response.data.message, err.response.status);
       } else {
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -50,28 +98,23 @@ export class CertificateService {
     }
   }
 
-  async generateBatchAssetCertificate(assetIds: string[], expiry: Date) {
+
+  async generateBatchAssetCertificate_new(assetIds: Record<string, any>[], holderDid: string, location: string, privateKey: string, subAccountId: string) {
     try {
-      const assetCertificates = [];
-      assetIds.forEach((asset_ifric_id: string) => {
-        const { privateKey, publicKey } = generatePrivateKey();
-
-        // Create CSR embedding UID (asset_ifric_id) and expiry
-        const csr = createCSR(privateKey, asset_ifric_id, expiry);
-
-        // Generate client certificate using Root CA
-        const clientCert = generateClientCertificate(csr, expiry);
-        assetCertificates.push({
-          certificate_data: clientCert,
-          asset_ifric_id
-        });
-
-      })
-      return assetCertificates;
-    } catch(err) {
+      const payload = {
+        holderDid: holderDid,
+        location: location,
+        privateKey: privateKey,
+        subAccountId: subAccountId,
+        twins: assetIds
+      };
+      const response = await axios.post(this.hbarUrl + "/vc/issue-batch", payload);
+      console.log('Response:', response.data);
+      return response.data;
+    } catch (err) {
       if (err instanceof HttpException) {
         throw err;
-      } else if(err.response) {
+      } else if (err.response) {
         throw new HttpException(err.response.data.message, err.response.status);
       } else {
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -79,14 +122,45 @@ export class CertificateService {
     }
   }
 
-  async verifyCertificate(certificate_data: string) {
+  // async generateBatchAssetCertificate(assetIds: string[], expiry: Date) {
+  //   try {
+  //     const assetCertificates = [];
+  //     assetIds.forEach((asset_ifric_id: string) => {
+  //       const { privateKey, publicKey } = generatePrivateKey();
+
+  //       // Create CSR embedding UID (asset_ifric_id) and expiry
+  //       const csr = createCSR(privateKey, asset_ifric_id, expiry);
+
+  //       // Generate client certificate using Root CA
+  //       const clientCert = generateClientCertificate(csr, expiry);
+  //       assetCertificates.push({
+  //         certificate_data: clientCert,
+  //         asset_ifric_id
+  //       });
+
+  //     })
+  //     return assetCertificates;
+  //   } catch (err) {
+  //     if (err instanceof HttpException) {
+  //       throw err;
+  //     } else if (err.response) {
+  //       throw new HttpException(err.response.data.message, err.response.status);
+  //     } else {
+  //       throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+  //     }
+  //   }
+  // }
+
+
+  async verifyCertificate_new(fileId: string) {
     try {
-      const formattedCertData = certificate_data.replace(/\\r\\n/g, '\n');
-      return verifyCertificate(formattedCertData);
-    } catch(err) {
+      const response = await axios.get(this.hbarUrl + "/did" + "/status/" + fileId);
+      console.log('Response:', response.data);
+      return response.data;
+    } catch (err) {
       if (err instanceof HttpException) {
         throw err;
-      } else if(err.response) {
+      } else if (err.response) {
         throw new HttpException(err.response.data.message, err.response.status);
       } else {
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -94,36 +168,49 @@ export class CertificateService {
     }
   }
 
-  async verifyAllAssetCertificate(data: { asset_ifric_id: string, certificate_data: string }[]) {
+  async verifyAssetCertificate(asset_ifric_id: string) {
+    try {
+      const vcId = asset_ifric_id.split(":")[2];
+      const pVcId = "urn:vc:product:" + vcId;
+      const response = await axios.get(this.hbarUrl + "/vc/" + pVcId + "/" + this.assetVcTopicId + "/status");
+      if (response.data.revoked) {
+        return false;
+      } else {
+        return true;
+      }
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      } else if (err.response) {
+        throw new HttpException(err.response.data.message, err.response.status);
+      } else {
+        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
+  async verifyAllAssetCertificate(data: { asset_ifric_id: string }[]) {
     try {
       const verfiedAssetCertificate = await Promise.all(
-        data.map(async(value) => {
+        data.map(async (value) => {
           try {
-            if(value.certificate_data) {
-              const response = await this.verifyCertificate(value.certificate_data);
+            if (value.asset_ifric_id) {
+              const response = await this.verifyAssetCertificate(value.asset_ifric_id);
               return {
                 asset_ifric_id: value.asset_ifric_id,
-                certified: response.valid
-              }
-            } else {
-              return {
-                asset_ifric_id: value.asset_ifric_id,
-                certified: false
+                certified: response ? true : false
               }
             }
-          } catch(err) {
-            return {
-              asset_ifric_id: value.asset_ifric_id,
-              certified: false
-            }
+          } catch (err) {
+            console.error(`Error verifying asset certificate for ${value.asset_ifric_id}:`, err);
           }
         })
       )
       return verfiedAssetCertificate;
-    } catch(err) {
+    } catch (err) {
       if (err instanceof HttpException) {
         throw err;
-      } else if(err.response) {
+      } else if (err.response) {
         throw new HttpException(err.response.data.message, err.response.status);
       } else {
         throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
