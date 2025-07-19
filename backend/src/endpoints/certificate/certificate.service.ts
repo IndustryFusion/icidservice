@@ -195,7 +195,7 @@ export class CertificateService {
             if (value.sequenceNumber) {
               const response = await this.verifyAssetCertificate(value.sequenceNumber);
               return {
-                asset_ifric_id: value.asset_ifric_id,
+                sequenceNumber: value.sequenceNumber,
                 certified: response ? true : false
               }
             }
