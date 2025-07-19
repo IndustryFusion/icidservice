@@ -187,20 +187,20 @@ export class CertificateService {
     }
   }
 
-  async verifyAllAssetCertificate(data: { sequenceNumber: string }[]) {
+  async verifyAllAssetCertificate(data: { sequence_number: string }[]) {
     try {
       const verfiedAssetCertificate = await Promise.all(
         data.map(async (value) => {
           try {
-            if (value.sequenceNumber) {
-              const response = await this.verifyAssetCertificate(value.sequenceNumber);
+            if (value.sequence_number) {
+              const response = await this.verifyAssetCertificate(value.sequence_number);
               return {
-                sequenceNumber: value.sequenceNumber,
+                sequenceNumber: value.sequence_number,
                 certified: response ? true : false
               }
             }
           } catch (err) {
-            console.error(`Error verifying asset certificate for ${value.sequenceNumber}:`, err);
+            console.error(`Error verifying asset certificate for ${value.sequence_number}:`, err);
           }
         })
       )
