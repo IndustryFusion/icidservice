@@ -127,9 +127,9 @@ export class CertificateController {
       required: ['asset_ifric_id', 'certificate_data']
     }
   })  
-  async verifyAssetCertificate(@Body() data: {asset_ifric_id: string}) {
+  async verifyAssetCertificate(@Body() data: {sequence_number: string}) {
     try {
-      return await this.certificateService.verifyAssetCertificate(data.asset_ifric_id);
+      return await this.certificateService.verifyAssetCertificate(data.sequence_number);
     } catch(err) {
       throw err;
     }
