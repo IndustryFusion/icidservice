@@ -200,7 +200,7 @@ export class CertificateService {
               }
             }
           } catch (err) {
-            console.error(`Error verifying asset certificate for ${value.asset_ifric_id}:`, err);
+            console.error(`Error verifying asset certificate for ${value.sequenceNumber}:`, err);
           }
         })
       )
