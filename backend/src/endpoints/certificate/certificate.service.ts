@@ -168,11 +168,9 @@ export class CertificateService {
     }
   }
 
-  async verifyAssetCertificate(asset_ifric_id: string) {
+  async verifyAssetCertificate(sequenceNumber: string) {
     try {
-      const vcId = asset_ifric_id.split(":")[2];
-      const pVcId = "urn:vc:product:" + vcId;
-      const response = await axios.get(this.hbarUrl + "/vc/" + pVcId + "/" + this.assetVcTopicId + "/status");
+      const response = await axios.get(this.hbarUrl + "/vc/" + sequenceNumber + "/" + this.assetVcTopicId + "/status");
       if (response.data.revoked) {
         return false;
       } else {
@@ -189,13 +187,13 @@ export class CertificateService {
     }
   }
 
-  async verifyAllAssetCertificate(data: { asset_ifric_id: string }[]) {
+  async verifyAllAssetCertificate(data: { sequenceNumber: string }[]) {
     try {
       const verfiedAssetCertificate = await Promise.all(
         data.map(async (value) => {
           try {
-            if (value.asset_ifric_id) {
-              const response = await this.verifyAssetCertificate(value.asset_ifric_id);
+            if (value.sequenceNumber) {
+              const response = await this.verifyAssetCertificate(value.sequenceNumber);
               return {
                 asset_ifric_id: value.asset_ifric_id,
                 certified: response ? true : false
