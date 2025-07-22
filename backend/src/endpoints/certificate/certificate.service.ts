@@ -171,6 +171,7 @@ export class CertificateService {
   async verifyAssetCertificate(sequenceNumber: string) {
     try {
       const response = await axios.get(this.hbarUrl + "/vc/" + sequenceNumber + "/" + this.assetVcTopicId + "/status");
+      console.log(response.data);
       if (response.data.revoked) {
         return false;
       } else {
