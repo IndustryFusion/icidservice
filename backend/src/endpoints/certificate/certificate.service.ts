@@ -168,11 +168,13 @@ export class CertificateService {
     }
   }
 
-  async verifyAssetCertificate(asset_ifric_id: string) {
+  async verifyAssetCertificate(sequenceNumber: string) {
     try {
-      const vcId = asset_ifric_id.split(":")[2];
-      const pVcId = "urn:vc:product:" + vcId;
-      const response = await axios.get(this.hbarUrl + "/vc/" + pVcId + "/" + this.assetVcTopicId + "/status");
+      console.log(sequenceNumber);
+      console.log(this.hbarUrl);
+      console.log(this.assetVcTopicId);
+      const response = await axios.get(this.hbarUrl + "/vc/" + sequenceNumber + "/" + this.assetVcTopicId + "/status");
+      console.log(response.data);
       if (response.data.revoked) {
         return false;
       } else {
@@ -189,20 +191,20 @@ export class CertificateService {
     }
   }
 
-  async verifyAllAssetCertificate(data: { asset_ifric_id: string }[]) {
+  async verifyAllAssetCertificate(data: { sequence_number: string }[]) {
     try {
       const verfiedAssetCertificate = await Promise.all(
         data.map(async (value) => {
           try {
-            if (value.asset_ifric_id) {
-              const response = await this.verifyAssetCertificate(value.asset_ifric_id);
+            if (value.sequence_number) {
+              const response = await this.verifyAssetCertificate(value.sequence_number);
               return {
-                asset_ifric_id: value.asset_ifric_id,
+                sequenceNumber: value.sequence_number,
                 certified: response ? true : false
               }
             }
           } catch (err) {
-            console.error(`Error verifying asset certificate for ${value.asset_ifric_id}:`, err);
+            console.error(`Error verifying asset certificate for ${value.sequence_number}:`, err);
           }
         })
       )
