@@ -129,23 +129,4 @@ export class AssetService {
       }
     }
   }
-
-  async removeAll(assetIds: string[]) {
-    try {
-      const urns = await this.urnModel.find({ urn: { $in: assetIds } }, { _id: 1 });
-      const urnIds = urns.map(urn => urn._id);
-
-      await this.urnModel.deleteMany({ urn: { $in: assetIds } });
-      await this.assetModel.deleteMany({ urn_id: { $in: urnIds } });
-      return {status: 204, message: "assets deleted successfully"};
-    } catch(err) {
-      if (err instanceof HttpException) {
-        throw err;
-      } else if(err.response) {
-        throw new HttpException(err.response.data.message, err.response.status);
-      } else {
-        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-    }
-  }
 }
