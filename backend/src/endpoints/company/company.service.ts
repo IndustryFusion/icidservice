@@ -73,7 +73,6 @@ export class CompanyService {
               if(urnResponse.length > 0){
                 const companyData = new this.companyModel({
                   registration_code: data.registration_code,
-                  country_id: data.country_id,
                   urn_id: urnResponse[0].id,
                   created_at: moment().format(),
                   last_updated_at: moment().format()
