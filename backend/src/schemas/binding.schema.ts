@@ -30,10 +30,7 @@ export class Binding {
   binding_datetime_string: string;
 
   @Prop()
-  data_provider_company_ifric_id: string;
-
-  @Prop()
-  data_consumer_company_ifric_id: string;
+  company_ifric_id: string;
 
   @Prop()
   created_at: Date;
