@@ -26,9 +26,6 @@ export class Company {
   @Prop()
   registration_code: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Country' })
-  country_id: number;
-
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'Urn' })
   urn_id: number;
 
