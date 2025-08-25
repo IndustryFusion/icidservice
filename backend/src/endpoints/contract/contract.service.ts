@@ -28,9 +28,9 @@ export class ContractService {
 
   async createBinding(data: CreateBindingDto) {
     try {
-      let uuid = uuidv5(data.data_provider_company_ifric_id + data.data_consumer_company_ifric_id + new Date().toISOString(), this.ifricId);
+      let uuid = uuidv5(data.company_ifric_id + new Date().toISOString(), this.ifricId);
       let bindingCodeArr = this.bindingCode.split('-');
-      let region_code = data.data_provider_company_ifric_id.split("-")[1].toUpperCase();
+      let region_code = data.company_ifric_id.split("-")[1].toUpperCase();
       const regionData = await this.regionModel.find();
       regionData.forEach(value => {
         if(value.region_code.startsWith(region_code)) {
@@ -48,8 +48,7 @@ export class ContractService {
       const bindingData = new this.bindingModel({
         urn_id: savedUrnData._id,
         binding_datetime_string: data.binding_datetime_string,
-        data_provider_company_ifric_id: data.data_provider_company_ifric_id,
-        data_consumer_company_ifric_id: data.data_consumer_company_ifric_id,
+        company_ifric_id: data.company_ifric_id,
         created_at: moment().format(),
         last_updated_at: moment().format() 
       })
@@ -68,9 +67,9 @@ export class ContractService {
 
   async createContract(data: CreateContractDto) {
     try {
-      let uuid = uuidv5(data.data_consumer_company_ifric_id + new Date().toISOString(), this.ifricId);
+      let uuid = uuidv5(data.company_ifric_id + new Date().toISOString(), this.ifricId);
       let contractCodeArr = this.contractCode.split('-');
-      let region_code = data.data_consumer_company_ifric_id.split("-")[1].toUpperCase();
+      let region_code = data.company_ifric_id.split("-")[1].toUpperCase();
       const regionData = await this.regionModel.find();
       regionData.forEach(value => {
         if(value.region_code.startsWith(region_code)) {
@@ -87,7 +86,7 @@ export class ContractService {
       const contractData = new this.contractModel({
         urn_id: savedUrnData._id,
         contract_datetime_string: data.contract_datetime_string,
-        data_consumer_company_ifric_id: data.data_consumer_company_ifric_id,
+        company_ifric_id: data.company_ifric_id,
         created_at: moment().format(),
         last_updated_at: moment().format() 
       })
