@@ -4,35 +4,103 @@
 
 ### ICID Service
 
-This reposoitory contains the code of IFRIC service which is responsible for unique registration, identification and certification of Industry Fusion Assets
+The **ICID Service** is part of the [IFRIC](https://ifric.org) ecosystem.  
+It provides **unique registration, identification, and certification of Industry Fusion assets** and other digital objects.  
 
+- Designed for **large-scale ecosystems** where billions of objects/products need unique IDs.  
+- Helps **reduce counterfeiting and piracy** by providing secure identity assignment.  
+- Fully **open source** under Apache 2.0, but also **commercialized by IFRIC** for use in the **IFF ecosystem** and other industrial networks.  
 
-## Running the Project Locally
+---
 
-The project contains one application, the backend build on nest.js. The project takes the .env file with multiple required configurations.
+## 🚀 Features
 
-Go inside each project and use README.md for running the applications.
+- 🔑 Unique ID generation & lifecycle management for assets  
+- 🌍 Supports IFF and other ecosystems requiring trusted identity  
+- 🛡️ Anti-counterfeit & anti-piracy use cases  
+- ☁️ Deployable anywhere – **local, Docker, or Kubernetes**  
+- 🔗 Provides REST API endpoints for easy integration  
 
-The backend will be accessible at http://localhost:4006 after successful run.
+---
 
-## Running the Project using Docker.
+## 📦 Project Structure
 
-**Build**
+- **Backend** → NestJS application exposing REST endpoints  
+- **Environment Config** → `.env` file with required keys  
 
-## Backend
+---
 
-### Build the Backend Docker Image
+## 🖥️ Running Locally
 
-Navigate to the `backend` directory and build the Docker image:
+1. Clone the repository  
+2. Copy `.env.example` → `.env` and configure values  
+3. Install dependencies & run backend:  
 
 ```bash
 cd backend
-docker build -t ibn40/backend:latest .
-```
+npm install
+npm run start:dev
 
-**Run**
 
-Make sure the .env variables are passed to the docker run command.
+## 🐳 Running with Docker
 
-`docker run --env-file .env -p <actual-port-num>:<actual-port-num> ibn40/<image>:<tag>`
-"../IfricRegistryService/README.md" 41L, 1524B   
+### Build the Backend Image
+```bash
+cd backend
+docker build -t icidservice/backend:latest .
+
+
+### Run the Container
+```bash
+docker run --env-file .env -p 4006:4006 icidservice/backend:latest
+
+
+## ☸️ Running with Kubernetes
+
+```yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: icidservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: icidservice
+  template:
+    metadata:
+      labels:
+        app: icidservice
+    spec:
+      containers:
+        - name: icidservice
+          image: icidservice/backend:latest
+          ports:
+            - containerPort: 4006
+          envFrom:
+            - secretRef:
+                name: icidservice-env
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: icidservice
+spec:
+  type: ClusterIP
+  ports:
+    - port: 4006
+      targetPort: 4006
+  selector:
+    app: icidservice
+
+
+## 🔌 API Endpoints (Examples)
+
+```http
+/asset     # Manages unique identity for assets
+/company # Manages unique identity for companies
+/contract # Manages unique identity for companies
+/gateway # Manages unique identity for companies
+/user # Manages unique identity for companies
+
+
