@@ -9,7 +9,7 @@ It provides **unique registration, identification, and certification of Industry
 
 - Designed for **large-scale ecosystems** where billions of objects/products need unique IDs.  
 - Helps **reduce counterfeiting and piracy** by providing secure identity assignment.  
-- Fully **open source** under Apache 2.0, but also **commercialized by IFRIC** for use in the **IFF ecosystem** [IFRIC](https://industry-fusion.com) and other industrial networks.  
+- Fully **open source** under Apache 2.0, but also **commercialized by IFRIC** for use in the **IFF ecosystem** [IndustryFusion](https://industry-fusion.com) and other industrial networks.  
 
 ---
 
