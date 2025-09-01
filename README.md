@@ -40,7 +40,7 @@ It provides **unique registration, identification, and certification of Industry
 cd backend
 npm install
 npm run start:dev
-
+```
 
 ## 🐳 Running with Docker
 
@@ -48,12 +48,12 @@ npm run start:dev
 ```bash
 cd backend
 docker build -t icidservice/backend:latest .
-
+```
 
 ### Run the Container
 ```bash
 docker run --env-file .env -p 4006:4006 icidservice/backend:latest
-
+```
 
 ## ☸️ Running with Kubernetes
 
@@ -92,7 +92,7 @@ spec:
       targetPort: 4006
   selector:
     app: icidservice
-
+```
 
 ## 🔌 API Endpoints (Examples)
 
@@ -102,5 +102,5 @@ spec:
 /contract # Manages unique identity for companies
 /gateway # Manages unique identity for companies
 /user # Manages unique identity for companies
-
+```
 
