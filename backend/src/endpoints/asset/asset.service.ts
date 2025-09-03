@@ -49,6 +49,9 @@ export class AssetService {
       if(objectSubTypeResponse.length > 0){
         let objectTypeData = await this.ObjectTypeModel.findById(objectSubTypeResponse[0].object_type_id);
         if(objectTypeData && objectTypeData.object_type_code == data.object_type_code){
+          if(!data.machine_serial_number) {
+            throw new HttpException("Machine Serial Number required", HttpStatus.CONFLICT);
+          }
           let response = await this.assetModel.find({machine_serial_number: data.machine_serial_number});
           if(!(response.length > 0)){
             let uuid = uuidv5(`${data.machine_serial_number}-${data.registration_number}`, this.ifricId);
