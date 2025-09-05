@@ -117,7 +117,7 @@ export class CompanyService {
     return `This action updates a #${id} company`;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     try {
       const urnData = await this.urnModel.find({urn: id});
       if(urnData.length) {
