@@ -117,7 +117,22 @@ export class CompanyService {
     return `This action updates a #${id} company`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} company`;
+  async remove(id: number) {
+    try {
+      const urnData = await this.urnModel.find({urn: id});
+      if(urnData.length) {
+        await this.urnModel.deleteOne({urn: id});
+        await this.companyModel.deleteOne({urn_id: urnData[0].id});
+      }
+      return {status: 204, message: "Company id deleted successfully"};
+    } catch(err) {
+      if (err instanceof HttpException) {
+        throw err;
+      } else if(err.response) {
+        throw new HttpException(err.response.data.message, err.response.status);
+      } else {
+        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
   }
 }
