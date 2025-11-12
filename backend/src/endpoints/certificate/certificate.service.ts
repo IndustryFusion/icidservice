@@ -168,6 +168,42 @@ export class CertificateService {
     }
   }
 
+  async verifyAllCompanyCertificate(data: Record<string,any>[]) {
+    try {
+      const batchSize = 50; 
+      const result: Record<string, boolean> = {};
+
+      for (let i = 0; i < data.length; i += batchSize) {
+        const batch = data.slice(i, i + batchSize);
+        const batchResults = await Promise.all(
+          batch.map(async (value) => {
+            try {
+              const response = await axios.get(this.hbarUrl + "/did" + "/status/" + value.fieldId);
+              return { company_ifric_id: value.company_ifric_id, verified: !response.data.revoked };
+            } catch(err) {
+              return { company_ifric_id: value.company_ifric_id, verified: false };
+            }
+          })
+        );
+
+        // merge each batch result
+        batchResults.forEach(({ company_ifric_id, verified }) => {
+          result[company_ifric_id] = verified;
+        });
+      }
+
+      return result;
+    } catch (err) {
+      if (err instanceof HttpException) {
+        throw err;
+      } else if (err.response) {
+        throw new HttpException(err.response.data.message, err.response.status);
+      } else {
+        throw new HttpException(err.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+  }
+
   async verifyAssetCertificate(sequenceNumber: string) {
     try {
       console.log(sequenceNumber);

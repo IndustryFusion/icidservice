@@ -111,6 +111,24 @@ export class CertificateController {
     }
   }
 
+  @Post('verify-all-company-certificate')
+  @ApiBody({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        example: { company_ifric_id: 'IFRIC12345', fileId: '0.01.20222' }
+      }
+    }
+  })  
+  async verifyAllCompanyCertificate(@Body() data: {company_ifric_id: string, fileId: string}[]) {
+    try {
+      return await this.certificateService.verifyAllCompanyCertificate(data);
+    } catch(err) {
+      throw err;
+    }
+  }
+
   
   // change to hedera VC verify call
   @Post('verify-asset-certificate')
