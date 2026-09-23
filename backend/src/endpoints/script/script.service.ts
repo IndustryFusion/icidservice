@@ -14,7 +14,7 @@
 // limitations under the License. 
 // 
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { countries } from "countries-list";
 import { Company } from 'src/schemas/company.schema';
 import { Country } from 'src/schemas/country.schema';
@@ -32,7 +32,9 @@ import { Model, ObjectId } from 'mongoose';
 import * as moment from 'moment';
 
 @Injectable()
-export class ScriptService {
+export class ScriptService implements OnModuleInit {
+  private readonly logger = new Logger(ScriptService.name);
+
   constructor(
     @InjectModel(Company.name)
     private companyModel: Model<Company>,
@@ -57,6 +59,40 @@ export class ScriptService {
     @InjectModel(User.name)
     private userModel: Model<User>,
   ) {}
+
+  /**
+   * Seed the reference data this service cannot mint without.
+   *
+   * Every mint validates its object type and sub-type against these rows, so
+   * an unseeded database answers "Object Sub Type Code does not exist" for
+   * everything. That used to require someone to remember to POST /script on
+   * each environment, and a newly added code — LOC/FAC, for instance —
+   * silently broke minting everywhere the call had not been repeated.
+   *
+   * `create()` is written as insert-what-is-missing, so running it on every
+   * boot adds new codes and leaves existing rows untouched.
+   *
+   * Never fatal: a seeding failure must not stop the service from starting.
+   * A database that is briefly unreachable at boot would otherwise take the
+   * whole service down, and the next restart seeds it anyway. Set
+   * ICID_AUTO_SEED=false to opt out.
+   */
+  async onModuleInit(): Promise<void> {
+    if (process.env.ICID_AUTO_SEED === 'false') {
+      this.logger.log('Automatic seeding is switched off (ICID_AUTO_SEED=false).');
+      return;
+    }
+    try {
+      await this.create();
+      this.logger.log('Reference data is present and up to date.');
+    } catch (err) {
+      this.logger.error(
+        `Could not seed reference data: ${err?.message ?? err}. ` +
+          'Identifier minting will fail until this is resolved — ' +
+          'POST /script once the database is reachable.',
+      );
+    }
+  }
 
   async create() {
     try {
@@ -129,13 +165,15 @@ export class ScriptService {
       }
   
       // Object Types
-      const objectTypeList = ["HWR", "NLD", "COM", "CON"];
+      // LOC covers physical places a company owns — today just factories.
+      const objectTypeList = ["HWR", "NLD", "COM", "CON", "LOC"];
       const existingObjectTypes = await this.objectTypeModel.find({ object_type_code: { $in: objectTypeList } });
       const objectTypeData = [
         { object_type_code: "HWR", object_type_name: "Hardware" },
         { object_type_code: "NLD", object_type_name: "NGSI-LD" },
         { object_type_code: "COM", object_type_name: "Company" },
-        { object_type_code: "CON", object_type_name: "Contract" }
+        { object_type_code: "CON", object_type_name: "Contract" },
+        { object_type_code: "LOC", object_type_name: "Location" }
       ].filter(type => !existingObjectTypes.some(existingType => existingType.object_type_code === type.object_type_code));
   
       if (objectTypeData.length > 0) {
@@ -155,7 +193,10 @@ export class ScriptService {
         { object_sub_type_code: "FSV", object_sub_type_name: "Factory Server", object_type_id: "HWR" },
         { object_sub_type_code: "NAP", object_sub_type_name: "Not Applicable", object_type_id: "COM" },
         { object_sub_type_code: "DEF", object_sub_type_name: "Contract definition", object_type_id: "CON" },
-        { object_sub_type_code: "BND", object_sub_type_name: "Contract binding", object_type_id: "CON" }
+        { object_sub_type_code: "BND", object_sub_type_name: "Contract binding", object_type_id: "CON" },
+        // A factory site. Distinct from FSV ("Factory Server"), which is the
+        // hardware box standing in a factory rather than the place itself.
+        { object_sub_type_code: "FAC", object_sub_type_name: "Factory", object_type_id: "LOC" }
       ];
   
       for (let i = 0; i < objectSubTypeData.length; i++) {

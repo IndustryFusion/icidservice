@@ -6,10 +6,14 @@ describe('ContractController', () => {
   let controller: ContractController;
 
   beforeEach(async () => {
+    // Every service here injects Mongoose models. They are auto-mocked rather
+    // than listed one by one: this spec only checks the provider resolves.
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ContractController],
       providers: [ContractService],
-    }).compile();
+    })
+      .useMocker(() => ({}))
+      .compile();
 
     controller = module.get<ContractController>(ContractController);
   });

@@ -36,6 +36,9 @@ import { ScriptController } from './endpoints/script/script.controller';
 import { ScriptService } from './endpoints/script/script.service';
 import { AssetController } from './endpoints/asset/asset.controller';
 import { AssetService } from './endpoints/asset/asset.service';
+import { FactoryController } from './endpoints/factory/factory.controller';
+import { FactoryService } from './endpoints/factory/factory.service';
+import { Factory, FactorySchema } from './schemas/factory.schema';
 import { GatewayController } from './endpoints/gateway/gateway.controller';
 import { GatewayService } from './endpoints/gateway/gateway.service';
 import { CompanyController } from './endpoints/company/company.controller';
@@ -68,7 +71,8 @@ const mongoURI = process.env.MONGO_URL;
       { name: Urn.name, schema: UrnSchema },
       { name: User.name, schema: UserSchema },
       { name: Contract.name, schema: ContractSchema },
-      { name: Binding.name, schema: BindingSchema }
+      { name: Binding.name, schema: BindingSchema },
+      { name: Factory.name, schema: FactorySchema }
     ]),
   ],
   controllers: [
@@ -79,7 +83,8 @@ const mongoURI = process.env.MONGO_URL;
     CompanyController,
     UserController,
     CertificateController,
-    ContractController
+    ContractController,
+    FactoryController
   ],
   providers: [
     AppService,
@@ -89,7 +94,8 @@ const mongoURI = process.env.MONGO_URL;
     CompanyService,
     UserService,
     CertificateService,
-    ContractService
+    ContractService,
+    FactoryService
   ],
 })
 export class AppModule {}
